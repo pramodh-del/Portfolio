@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kadam Pramodh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #FFFFFF;
+    --grid: rgba(20, 22, 31, 0.055);
+    --ink: #14161F;
+    --ink-2: #3B3F4C;
+    --muted: #6B7080;
+    --line: #E3E5EB;
+    --spring: #6DB33F;
+    --aws: #FF9900;
+    --oracle: #C74634;
+    --blue: #3D7BFF;
+    --note: #FFE58A;
+    --navy: #14161F;
+    --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+    --sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --hand: "Caveat", "Comic Sans MS", cursive;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 48px 48px;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 4px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding-inline: max(16px, 4vw); }
+  .mono { font-family: var(--mono); }
+  .hand { font-family: var(--hand); }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
+    display: flex; align-items: stretch; justify-content: space-between; gap: 12px;
+    height: 46px; background: rgba(255,255,255,.94);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .nav-left { display: flex; align-items: stretch; min-width: 0; }
+  .mark {
+    display: grid; place-items: center; width: 46px; flex: none;
+    font: 700 15px/1 var(--mono); border-right: 1px solid var(--line);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; align-items: stretch; overflow-x: auto; scrollbar-width: none; }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a {
+    display: flex; align-items: center; gap: 7px; padding: 0 14px;
+    font: 500 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+    text-decoration: none; white-space: nowrap; color: var(--ink-2);
+    transition: background .2s, color .2s;
+  }
+  .nav-links a:hover { background: #F3F4F7; }
+  .nav-links a.on { background: var(--ink); color: #fff; }
+  .nav-links svg { width: 13px; height: 13px; }
+  .nav-right { display: flex; align-items: center; gap: 8px; padding-right: 12px; }
+  .clock {
+    font: 500 11px/1 var(--mono); padding: 6px 9px; border-radius: 999px;
+    background: #F3F4F7; border: 1px solid var(--line); white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .clock b { color: var(--spring); font-weight: 700; }
+  .btn-out {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 500 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+    padding: 8px 12px; border: 1.5px solid var(--ink); border-radius: 4px; text-decoration: none;
+    background: #fff; white-space: nowrap;
+  }
+  .btn-out:hover { background: var(--ink); color: #fff; }
+
+  /* ---------- Shared Figma bits ---------- */
+  .sel { position: relative; outline: 1.5px solid var(--blue); outline-offset: 10px; }
+  .sel .h {
+    position: absolute; width: 9px; height: 9px; background: #fff; border: 1.5px solid var(--blue);
+  }
+  .sel .h.tl { left: -15px; top: -15px; } .sel .h.tr { right: -15px; top: -15px; }
+  .sel .h.bl { left: -15px; bottom: -15px; } .sel .h.br { right: -15px; bottom: -15px; }
+  .sel .size {
+    position: absolute; left: 50%; bottom: -38px; transform: translateX(-50%);
+    background: var(--blue); color: #fff; font: 500 10px/1 var(--mono);
+    padding: 4px 6px; border-radius: 3px; white-space: nowrap; font-variant-numeric: tabular-nums;
+    letter-spacing: 0; font-weight: 500;
+  }
+  .cursor {
+    display: inline-flex; align-items: flex-start; gap: 2px; pointer-events: none;
+  }
+  .cursor svg { width: 18px; height: 18px; flex: none; }
+  .cursor span {
+    margin-top: 12px; padding: 6px 11px; border-radius: 999px 999px 999px 4px;
+    font: 700 11px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--ink);
+    border: 1.5px solid var(--ink); white-space: nowrap;
+  }
+  .scribble { display: block; margin: 2px auto 0; width: 64px; height: 10px; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; padding-block: 64px 96px; }
+  .hero-core { position: relative; z-index: 2; display: grid; justify-items: center; text-align: center; gap: 6px; }
+  .live { font: 500 12px/1 var(--mono); color: var(--muted); margin-bottom: 26px; font-variant-numeric: tabular-nums; }
+  .hi { font-size: clamp(30px, 4vw, 40px); line-height: 1; margin: 0 0 14px; }
+  .name {
+    margin: 0; font-family: var(--display); font-weight: 800;
+    font-size: clamp(52px, 12.5vw, 150px); line-height: .9; letter-spacing: -0.04em;
+    padding: 4px 10px;
+  }
+  .tagline {
+    margin: 64px 0 0; font-size: clamp(22px, 2.6vw, 32px); line-height: 1.2;
+    letter-spacing: -0.02em; font-weight: 500; max-width: 22ch; text-wrap: balance;
+  }
+  .inline-ico {
+    display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; vertical-align: -0.12em;
+    border-radius: 6px; background: var(--spring); border: 1.5px solid var(--ink); margin: 0 .08em;
+  }
+  .inline-ico svg { width: 62%; height: 62%; }
+  .cta {
+    display: inline-flex; align-items: center; gap: 10px; margin-top: 26px;
+    background: var(--ink); color: #fff; text-decoration: none;
+    font: 700 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase;
+    padding: 6px 16px 6px 6px; border-radius: 4px;
+    transition: transform .2s;
+  }
+  .cta:hover { transform: translateY(-2px); }
+  .cta i { width: 26px; height: 26px; display: grid; place-items: center; background: var(--spring); border-radius: 3px; font-style: normal; color: var(--ink); }
+
+  .floats { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+  .float { position: absolute; pointer-events: auto; touch-action: none; }
+  .drag { cursor: grab; user-select: none; }
+  .drag.dragging { cursor: grabbing; filter: drop-shadow(0 12px 18px rgba(20,22,31,.18)); z-index: 5; }
+  .sticker {
+    padding: 10px 16px; font-size: 14px; font-weight: 500; border: 1.5px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink); white-space: nowrap;
+  }
+  .terminal {
+    width: 270px; border-radius: 10px; background: var(--navy); color: #D7DAE3;
+    font: 400 12px/1.6 var(--mono); padding: 12px 14px 14px; text-align: left;
+    box-shadow: 0 18px 40px -18px rgba(20,22,31,.55); border: 1.5px solid var(--ink);
+  }
+  .terminal .bar { display: flex; gap: 6px; margin-bottom: 10px; }
+  .terminal .bar i { width: 9px; height: 9px; border-radius: 50%; background: #3A3E4B; }
+  .terminal .bar i:first-child { background: var(--oracle); }
+  .terminal .bar i:nth-child(2) { background: var(--aws); }
+  .terminal .bar i:nth-child(3) { background: var(--spring); }
+  .terminal .p { color: var(--spring); }
+  .terminal .k { color: #8FB4FF; }
+  .terminal .s { color: #FFC266; }
+  .note {
+    width: 200px; padding: 14px 16px; background: var(--note); font-size: 14px; line-height: 1.4;
+    box-shadow: 0 10px 22px -12px rgba(20,22,31,.4); text-align: left;
+  }
+  @keyframes bob { 50% { transform: translate(6px, -8px); } }
+  .bob { animation: bob 5s ease-in-out infinite; }
+  .bob.slow { animation-duration: 6.5s; animation-delay: -2s; }
+
+  /* ---------- Section heads ---------- */
+  section { position: relative; }
+  .sec-head { text-align: center; padding-top: 56px; margin-bottom: 32px; }
+  .sec-head .hand { font-size: clamp(30px, 3.6vw, 40px); line-height: 1; margin: 0; font-weight: 500; }
+
+  /* ---------- About ---------- */
+  .about { padding-bottom: 88px; }
+  .tagbox { display: inline-block; padding: 6px 14px; font: 700 26px/1 var(--hand); transform: rotate(-4deg); border: 1.5px solid var(--ink); background: #fff; }
+  .statement {
+    margin: 36px auto 0; max-width: 20ch; text-align: center;
+    font-size: clamp(30px, 4.4vw, 54px); line-height: 1.12; letter-spacing: -0.035em; font-weight: 500;
+    text-wrap: balance;
+  }
+  .statement .inline-ico { border-radius: 8px; }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 36px auto 0; max-width: 900px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 10px 16px; font-size: clamp(17px, 1.8vw, 22px); font-weight: 500; letter-spacing: -0.01em;
+    border: 1.5px solid var(--ink); color: var(--ink);
+  }
+  .chip b { width: 22px; height: 22px; display: grid; place-items: center; background: #fff; border: 1.5px solid var(--ink); font: 700 11px/1 var(--mono); }
+  .facts {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 56px auto 0; max-width: 980px;
+    border: 1.5px solid var(--ink); background: #fff;
+  }
+  .facts div { padding: 18px 18px 16px; border-right: 1.5px solid var(--ink); display: grid; gap: 4px; }
+  .facts div:last-child { border-right: 0; }
+  .facts strong { font-family: var(--display); font-weight: 800; font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .facts span { font: 500 11px/1.35 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .ticket {
+    position: absolute; width: 170px; background: #fff; border: 1.5px solid var(--ink); padding: 10px;
+    box-shadow: 0 14px 30px -18px rgba(20,22,31,.5); text-align: left;
+  }
+  .ticket .art { height: 96px; display: grid; place-items: center; border: 1.5px solid var(--ink); font-family: var(--display); font-weight: 800; font-size: 34px; letter-spacing: -0.04em; }
+  .ticket p { margin: 8px 0 0; font: 700 18px/1.1 var(--hand); }
+
+  /* ---------- Work: stacked folder cards ---------- */
+  .work { padding-bottom: 40px; }
+  .work-note { width: 250px; margin: 0 auto 60px; transform: rotate(-2deg); position: relative; }
+  .cases { display: grid; gap: 34px; }
+  .case {
+    position: sticky; top: calc(64px + var(--i) * 18px);
+    padding-top: 36px;
+  }
+  .case-tab {
+    position: absolute; top: 0; left: calc(var(--i) * 158px); height: 37px;
+    display: inline-flex; align-items: center; gap: 8px; padding: 0 30px 0 16px;
+    font: 700 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+    background: var(--c); color: var(--tc, var(--ink));
+    clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 100%, 0 100%);
+  }
+  .case-body {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 28px;
+    background: #fff; border: 1.5px solid var(--c); padding: 22px;
+    min-height: 430px;
+  }
+  .case-info { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .when { display: flex; align-items: center; gap: 8px; font: 500 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+  .when::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+  .case h3 { margin: 0; font-size: clamp(22px, 2.4vw, 30px); line-height: 1.12; letter-spacing: -0.03em; font-weight: 600; text-wrap: balance; }
+  .case p { margin: 0; color: var(--ink-2); max-width: 52ch; }
+  .metric { display: flex; align-items: baseline; gap: 10px; padding-top: 14px; border-top: 1.5px dashed var(--line); }
+  .metric strong { font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .metric span { color: var(--muted); font-size: 14px; }
+  details { border-top: 1.5px dashed var(--line); padding-top: 12px; }
+  summary {
+    list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    font: 700 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+    border-bottom: 1.5px solid var(--ink); padding-bottom: 3px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "↓"; transition: transform .2s; }
+  details[open] summary::after { transform: rotate(180deg); }
+  details dl { margin: 12px 0 0; display: grid; gap: 10px; }
+  details dt { font: 700 10.5px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  details dd { margin: 3px 0 0; font-size: 14px; color: var(--ink-2); }
+  .ftags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 6px; }
+  .ftags span {
+    font: 700 10.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+    background: var(--ink); color: #fff; padding: 7px 10px 6px;
+    clip-path: polygon(0 4px, 12px 4px, 16px 0, 100% 0, 100% 100%, 0 100%);
+    padding-top: 9px;
+  }
+  .visual { position: relative; margin: 12px; }
+  .visual .frame {
+    height: 100%; min-height: 360px; border: 1.5px solid var(--ink); background: #FAFBFC;
+    display: grid; place-items: center; padding: 18px;
+    background-image: radial-gradient(rgba(20,22,31,.09) 1px, transparent 1px); background-size: 14px 14px;
+  }
+  .visual .frame svg { width: 100%; height: auto; max-height: 330px; }
+  .visual .badge {
+    position: absolute; top: 10px; right: 10px; background: var(--ink); color: #fff;
+    font: 700 10.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 7px 9px;
+  }
+  .visual .h { position: absolute; width: 9px; height: 9px; background: #fff; border: 1.5px solid var(--ink); }
+  .visual .h.tl { left: -5px; top: -5px; } .visual .h.tr { right: -5px; top: -5px; }
+  .visual .h.bl { left: -5px; bottom: -5px; } .visual .h.br { right: -5px; bottom: -5px; }
+  .svg-t { font-family: "JetBrains Mono", monospace; font-size: 11px; fill: #14161F; }
+  .svg-t.b { font-weight: 700; }
+  .svg-t.m { fill: #6B7080; }
+
+  /* ---------- Side builds ---------- */
+  .side { padding-bottom: 72px; }
+  .side-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; max-width: 900px; margin: 0 auto; }
+  .fcard { position: relative; padding-top: 34px; }
+  .fcard .ftab {
+    position: absolute; top: 0; left: 0; height: 35px; display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 34px 0 16px; background: #EDEFF3; font: 700 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+    clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 100%, 0 100%);
+  }
+  .fcard .ftab::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+  .fcard .inner { background: #EDEFF3; padding: 10px 10px 18px; }
+  .fcard .shot { background: #fff; border: 1.5px solid var(--ink); height: 170px; display: grid; place-items: center; padding: 14px; }
+  .fcard h3 { margin: 16px 6px 4px; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; text-align: center; }
+  .fcard p { margin: 0 6px; font-size: 14px; color: var(--ink-2); text-align: center; }
+  .log { width: 100%; font: 400 11.5px/1.7 var(--mono); color: var(--ink-2); }
+  .log .ok { color: var(--spring); font-weight: 700; } .log .warn { color: var(--oracle); font-weight: 700; } .log .hl { background: var(--note); }
+
+  /* ---------- Stack ---------- */
+  .stack { padding-bottom: 80px; }
+  .groups { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1.5px solid var(--ink); background: #fff; max-width: 1060px; margin: 0 auto; }
+  .group { padding: 18px; border-right: 1.5px solid var(--ink); }
+  .group:last-child { border-right: 0; }
+  .group h4 { margin: 0 0 12px; display: flex; align-items: center; gap: 8px; font: 700 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+  .group h4 i { width: 12px; height: 12px; background: var(--c); border: 1.5px solid var(--ink); }
+  .group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 15px; }
+  .group li { display: flex; justify-content: space-between; gap: 8px; }
+  .group li small { font: 400 11px/1.9 var(--mono); color: var(--muted); white-space: nowrap; }
+
+  /* ---------- Off the clock ---------- */
+  .offclock { padding-bottom: 80px; }
+  .offclock-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 22px; max-width: 900px; margin: 0 auto; }
+  .offclock-row p { margin: 0; max-width: 40ch; font-size: 18px; line-height: 1.5; color: var(--ink-2); }
+  .exif { display: grid; gap: 8px; }
+  .exif span {
+    font: 700 12px/1 var(--mono); padding: 9px 12px; border: 1.5px solid var(--ink); background: #fff;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .exif span:nth-child(2) { transform: rotate(3deg) translateX(14px); background: var(--note); }
+  .exif span:nth-child(3) { transform: rotate(-2deg); }
+
+  /* ---------- Contact ---------- */
+  .contact { padding-bottom: 36px; }
+  .contact-panel {
+    position: relative; background: var(--navy); color: #EDEEF2; border-radius: 22px;
+    padding: 110px max(16px, 5vw) 48px; display: grid; justify-items: center; gap: 22px; text-align: center; overflow: hidden;
+    background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px); background-size: 18px 18px;
+  }
+  .big-sticker {
+    display: inline-flex; align-items: center; gap: 14px; padding: 12px 18px; transform: rotate(-6deg);
+    background: var(--spring); color: var(--ink); border: 2px solid var(--ink); box-shadow: 6px 6px 0 #000;
+    font: 800 clamp(34px, 7vw, 76px)/1 var(--display); letter-spacing: -0.04em;
+  }
+  .big-sticker i {
+    width: .78em; height: .78em; display: grid; place-items: center; background: var(--aws); border: 2px solid var(--ink);
+    transform: rotate(45deg); font-style: normal;
+  }
+  .big-sticker i span { transform: rotate(-45deg); font: 800 .34em/1 var(--mono); }
+  .contact-panel > p { margin: 26px 0 0; max-width: 46ch; color: #B7BBC7; font-size: 16px; }
+  .email-row {
+    display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 16px; border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,.18); background: rgba(255,255,255,.04); max-width: 100%;
+  }
+  .email-row code { font: 500 clamp(13px, 1.6vw, 16px)/1 var(--mono); user-select: all; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .copy { background: #fff; color: var(--ink); font: 700 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 9px 12px; border-radius: 7px; flex: none; }
+  .dock {
+    display: flex; gap: 6px; justify-content: center; margin: 22px auto 0; width: fit-content;
+    background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 8px;
+    box-shadow: 0 10px 26px -16px rgba(20,22,31,.35);
+  }
+  .dock a { display: grid; justify-items: center; gap: 5px; padding: 8px 12px; border-radius: 9px; text-decoration: none; font: 700 10px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+  .dock a:hover { background: #F3F4F7; }
+  .dock svg { width: 18px; height: 18px; }
+  footer { text-align: center; padding: 26px 16px calc(34px + env(safe-area-inset-bottom, 0px)); font: 400 11px/1.6 var(--mono); color: var(--muted); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; z-index: 60; transform: translate(-50%, 12px); opacity: 0;
+    background: var(--ink); color: #fff; font: 500 12px/1 var(--mono); padding: 10px 14px; border-radius: 999px;
+    transition: opacity .25s, transform .25s; pointer-events: none;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .case-body { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+    .visual .frame { min-height: 240px; }
+    .case-tab { left: calc(var(--i) * 92px); padding: 0 24px 0 12px; }
+    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .facts div:nth-child(2) { border-right: 0; }
+    .facts div:nth-child(-n+2) { border-bottom: 1.5px solid var(--ink); }
+    .groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .group:nth-child(2) { border-right: 0; }
+    .group:nth-child(-n+2) { border-bottom: 1.5px solid var(--ink); }
+    .ticket { display: none; }
+  }
+  @media (max-width: 760px) {
+    .floats {
+      position: static; display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 14px;
+      margin-top: 44px; pointer-events: auto;
+    }
+    .float { position: static; }
+    .float.hide-sm { display: none; }
+    .terminal { width: min(100%, 300px); }
+    .side-grid { grid-template-columns: minmax(0, 1fr); }
+    .case { position: relative; top: auto; }
+    .nav-links a span.lbl { display: none; }
+    .nav-links a { padding: 0 12px; }
+    .clock { display: none; }
+    .hero { padding-block: 44px 56px; }
+    .tagline { margin-top: 56px; }
+  }
+  @media (max-width: 480px) {
+    .groups, .facts { grid-template-columns: minmax(0, 1fr); }
+    .group, .facts div { border-right: 0 !important; border-bottom: 1.5px solid var(--ink); }
+    .group:last-child, .facts div:last-child { border-bottom: 0; }
+    .case-tab { left: calc(var(--i) * 64px); font-size: 10px; }
+    .case-tab .t-long { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .bob { animation: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Primary">
+  <div class="nav-left">
+    <a class="mark" href="#top" aria-label="Back to top">{ }</a>
+    <div class="nav-links" id="navlinks">
+      <a href="#top" data-sec="top" class="on"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1 1 7h2v8h4v-5h2v5h4V7h2z"/></svg><span class="lbl">Home</span></a>
+      <a href="#about" data-sec="about"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7 1h2v4.3l3.7-2.2 1 1.8L10 7l3.7 2.1-1 1.8L9 8.7V13H7V8.7l-3.7 2.2-1-1.8L6 7 2.3 4.9l1-1.8L7 5.3z"/></svg><span class="lbl">About</span></a>
+      <a href="#work" data-sec="work"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1 3h5l1.5 1.5H15V14H1z"/></svg><span class="lbl">Work</span></a>
+      <a href="#stack" data-sec="stack"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 10h3v5H2zM6.5 6h3v9h-3zM11 2h3v13h-3z"/></svg><span class="lbl">Stack</span></a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="clock" title="My local time">HYD <b id="navclock">--:--</b> IST</span>
+    <a class="btn-out" href="#contact"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 14.5 1.8 8.6A3.9 3.9 0 0 1 8 3.4a3.9 3.9 0 0 1 6.2 5.2z"/></svg>Contact</a>
+  </div>
+</nav>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero wrap" data-sec="top">
+    <div class="hero-core">
+      <div class="live" id="livetime">Hyderabad, India · --:--:--</div>
+      <p class="hi hand">hey, my name is</p>
+      <svg class="scribble" viewBox="0 0 64 10" aria-hidden="true"><path d="M2 4c10-3 20 3 30 0s20-3 30 0M6 8c10-2 18 2 26 0s18-2 26 0" fill="none" stroke="#14161F" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <h1 class="name sel" id="nameFrame" style="margin-top:20px">PRAMODH<i class="h tl"></i><i class="h tr"></i><i class="h bl"></i><i class="h br"></i><span class="size" id="nameSize">Frame · 0 × 0</span></h1>
+      <p class="tagline">I build backend systems <span class="inline-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="#14161F"><path d="M3 2h7l3 3v9H3z"/></svg></span> that stay up at 2 AM.</p>
+      <a class="cta" href="#work"><i aria-hidden="true">»</i>See my work</a>
+    </div>
+
+    <div class="floats" aria-label="Quick facts">
+      <div class="float drag terminal" style="left:0;top:390px;transform:rotate(-4deg)">
+        <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div><span class="p">$</span> curl -s /api/pramodh/health</div>
+        <div>{</div>
+        <div>&nbsp;&nbsp;<span class="k">"status"</span>: <span class="s">"UP"</span>,</div>
+        <div>&nbsp;&nbsp;<span class="k">"java"</span>: <span class="s">21</span>,</div>
+        <div>&nbsp;&nbsp;<span class="k">"cloud"</span>: <span class="s">"AWS"</span>,</div>
+        <div>&nbsp;&nbsp;<span class="k">"promoted"</span>: <span class="s">"within 2 yrs"</span></div>
+        <div>}</div>
+      </div>
+      <div class="float drag sticker" style="left:17%;top:300px;transform:rotate(-8deg);background:var(--spring)">Currently @ Accenture</div>
+      <div class="float drag sticker" style="right:4%;top:190px;transform:rotate(6deg);background:var(--aws)">☁ AWS Certified Cloud Practitioner</div>
+      <div class="float drag note" style="right:0;top:410px;transform:rotate(3deg)"><span class="hand" style="font-size:22px;line-height:1">Promoted to Analyst in under 2 years.</span></div>
+      <div class="float cursor bob hide-sm" style="left:24%;top:640px" aria-hidden="true">
+        <svg viewBox="0 0 18 18"><path d="M2 1 16 8.5 9.5 10 7 16.5z" fill="#6DB33F" stroke="#14161F" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <span style="background:var(--spring)">Backend engineer</span>
+      </div>
+      <div class="float cursor bob slow hide-sm" style="right:14%;top:560px" aria-hidden="true">
+        <svg viewBox="0 0 18 18"><path d="M2 1 16 8.5 9.5 10 7 16.5z" fill="#FF9900" stroke="#14161F" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <span style="background:var(--note)">Java 21 · Spring Boot</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about wrap" id="about" data-sec="about">
+    <div class="sec-head"><span class="tagbox sel" style="outline-offset:6px">what's up<i class="h tl" style="left:-11px;top:-11px"></i><i class="h br" style="right:-11px;bottom:-11px"></i></span></div>
+
+    <div class="ticket" style="left:0;top:150px;transform:rotate(-6deg)">
+      <div class="art" style="background:#EAF5E2">2024</div>
+      <p>May · joined Accenture</p>
+    </div>
+    <div class="ticket" style="right:0;top:190px;transform:rotate(5deg)">
+      <div class="art" style="background:#FFF2DC">2026</div>
+      <p>June · promoted to Analyst</p>
+    </div>
+
+    <p class="statement">A backend engineer <span class="inline-ico" aria-hidden="true" style="background:var(--aws)"><svg viewBox="0 0 16 16" fill="#14161F"><path d="M4 11a3 3 0 0 1 .4-6 4 4 0 0 1 7.3 1.3A2.4 2.4 0 0 1 12 11z"/></svg></span> who owns what happens after the code ships <span class="inline-ico" aria-hidden="true" style="background:var(--blue)"><svg viewBox="0 0 16 16" fill="#fff"><path d="M9 1 3 9h4l-1 6 6-8H8z"/></svg></span></p>
+    <p style="text-align:center;color:var(--ink-2);max-width:62ch;margin:22px auto 0;font-size:17px">2 years 4 months at Accenture on a Fortune 500 insurance platform. I design the API, tune the SQL, provision the infrastructure and pick up the production defect when it breaks.</p>
+
+    <div class="chips">
+      <span class="chip" style="background:var(--spring)">Java &amp; Spring Boot <b>{}</b></span>
+      <span class="chip" style="background:var(--aws)">AWS &amp; Terraform <b>☁</b></span>
+      <span class="chip" style="background:var(--oracle);color:#fff">SQL Performance <b style="color:var(--ink)">⌁</b></span>
+      <span class="chip" style="background:var(--blue);color:#fff">Event-Driven Systems <b style="color:var(--ink)">→</b></span>
+    </div>
+
+    <div class="facts">
+      <div><strong>14</strong><span>Services moved off a legacy platform</span></div>
+      <div><strong>26</strong><span>SOAP operations migrated, zero contract changes</span></div>
+      <div><strong>3m→&lt;60s</strong><span>Production timeout fixed</span></div>
+      <div><strong>80%+</strong><span>Unit test coverage, JUnit 5 + Mockito</span></div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="work wrap" id="work" data-sec="work">
+    <div class="sec-head">
+      <p class="hand">explore my work!</p>
+      <svg class="scribble" viewBox="0 0 64 10" aria-hidden="true"><path d="M2 4c10-3 20 3 30 0s20-3 30 0M6 8c10-2 18 2 26 0s18-2 26 0" fill="none" stroke="#14161F" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </div>
+    <div class="note work-note"><span class="hand" style="font-size:21px;line-height:1.15">Client and internal system names are left out under NDA. The numbers are real.</span></div>
+
+    <div class="cases">
+      <!-- 01 -->
+      <article class="case" style="--i:0;--c:var(--spring)">
+        <div class="case-tab">▮ Case 01<span class="t-long">&nbsp;· migration</span></div>
+        <div class="case-body">
+          <div class="case-info">
+            <div class="when">2026 · Analyst</div>
+            <h3>Moving a 26-operation SOAP platform to Spring Boot without breaking a single client</h3>
+            <p>A legacy Group Benefits SOAP service built with WebLogic Ant tooling, moved onto an embedded Spring Boot 4 and Apache CXF JAR on Java 21.</p>
+            <div class="metric"><strong>0</strong><span>contract changes for existing clients</span></div>
+            <details>
+              <summary>How it went</summary>
+              <dl>
+                <div><dt>Problem</dt><dd>Existing clients had generated stubs from the published WSDL. Any change to names, types or element order would break them.</dd></div>
+                <div><dt>What I did</dt><dd>Migrated the build from Ant to Maven, moved javax to jakarta, and rebuilt the service on CXF across three Oracle UCP datasources.</dd></div>
+                <div><dt>How I proved it</dt><dd>Compared the SHA-256 of the old and new WSDL. Byte-for-byte identical.</dd></div>
+              </dl>
+            </details>
+            <div class="ftags"><span>Java 21</span><span>Spring Boot</span><span>Apache CXF</span></div>
+          </div>
+          <div class="visual">
+            <div class="frame">
+              <svg viewBox="0 0 420 300" role="img" aria-label="Diagram: WebLogic Ant build migrated to a Spring Boot and CXF JAR, WSDL hash identical">
+                <rect x="14" y="40" width="150" height="96" rx="6" fill="#FFFFFF" stroke="#14161F" stroke-width="1.5"/>
+                <text x="30" y="68" class="svg-t b">BEFORE</text>
+                <text x="30" y="92" class="svg-t">WebLogic</text>
+                <text x="30" y="110" class="svg-t">Ant · wsdlc/jwsc</text>
+                <text x="30" y="128" class="svg-t m">javax.*</text>
+                <path d="M172 88h66" stroke="#14161F" stroke-width="1.5" fill="none"/>
+                <path d="M232 82l8 6-8 6" fill="none" stroke="#14161F" stroke-width="1.5"/>
+                <rect x="248" y="40" width="160" height="96" rx="6" fill="#EAF5E2" stroke="#14161F" stroke-width="1.5"/>
+                <text x="264" y="68" class="svg-t b">AFTER</text>
+                <text x="264" y="92" class="svg-t">Spring Boot 4 · CXF</text>
+                <text x="264" y="110" class="svg-t">Maven · Java 21 JAR</text>
+                <text x="264" y="128" class="svg-t m">jakarta.*</text>
+                <rect x="14" y="176" width="394" height="92" rx="6" fill="#FFFFFF" stroke="#14161F" stroke-width="1.5" stroke-dasharray="5 4"/>
+                <text x="30" y="204" class="svg-t b">WSDL SHA-256</text>
+                <text x="30" y="228" class="svg-t">old  C6C9CB…0344A6</text>
+                <text x="30" y="250" class="svg-t">new  C6C9CB…0344A6</text>
+                <rect x="298" y="206" width="94" height="36" rx="18" fill="#6DB33F" stroke="#14161F" stroke-width="1.5"/>
+                <text x="318" y="229" class="svg-t b">IDENTICAL</text>
+              </svg>
+            </div>
+            <span class="badge">26 operations</span>
+            <i class="h tl"></i><i class="h tr"></i><i class="h bl"></i><i class="h br"></i>
+          </div>
+        </div>
+      </article>
+
+      <!-- 02 -->
+      <article class="case" style="--i:1;--c:var(--aws)">
+        <div class="case-tab">▮ Case 02<span class="t-long">&nbsp;· AWS</span></div>
+        <div class="case-body">
+          <div class="case-info">
+            <div class="when">2026 · Analyst</div>
+            <h3>Retiring IBM MQ for an event-driven publishing service on AWS</h3>
+            <p>Rebuilt a Group Benefits event and acknowledgement API on Spring Boot and Java 21, and provisioned its runtime in Terraform.</p>
+            <div class="metric"><strong>25 min</strong><span>retry window before a message reaches the DLQ</span></div>
+            <details>
+              <summary>How it went</summary>
+              <dl>
+                <div><dt>Problem</dt><dd>Outbound dispatch ran on IBM MQ with a scheduled batch bootstrap. Failed messages had no clean retry or parking path.</dd></div>
+                <div><dt>What I did</dt><dd>Provisioned API Gateway, VPC Link, an internal ALB and ECS Fargate in Terraform, with SQS FIFO queues and a 5-attempt redrive to a 14-day dead letter queue. Large payloads go to S3 using the claim-check pattern.</dd></div>
+                <div><dt>Design choice</dt><dd>Manual acknowledgement: a message is deleted only after the database commit, so a crash causes a retry, not a lost event.</dd></div>
+              </dl>
+            </details>
+            <div class="ftags"><span>SQS FIFO</span><span>ECS Fargate</span><span>Terraform</span></div>
+          </div>
+          <div class="visual">
+            <div class="frame">
+              <svg viewBox="0 0 420 300" role="img" aria-label="Diagram: API Gateway to VPC Link to ALB to ECS service, publishing to SQS FIFO with a dead letter queue and S3 claim-check">
+                <g font-family="JetBrains Mono, monospace" font-size="11">
+                  <rect x="10" y="30" width="96" height="40" rx="5" fill="#FFF2DC" stroke="#14161F" stroke-width="1.5"/><text x="22" y="55" class="svg-t b">API Gateway</text>
+                  <rect x="162" y="30" width="96" height="40" rx="5" fill="#FFFFFF" stroke="#14161F" stroke-width="1.5"/><text x="180" y="55" class="svg-t">VPC Link</text>
+                  <rect x="314" y="30" width="96" height="40" rx="5" fill="#FFFFFF" stroke="#14161F" stroke-width="1.5"/><text x="326" y="55" class="svg-t">internal ALB</text>
+                  <path d="M106 50h56M258 50h56" stroke="#14161F" stroke-width="1.5"/>
+                  <rect x="236" y="110" width="174" height="52" rx="5" fill="#EAF5E2" stroke="#14161F" stroke-width="1.5"/>
+                  <text x="252" y="132" class="svg-t b">ECS Fargate</text><text x="252" y="150" class="svg-t">Spring Boot · Java 21</text>
+                  <path d="M362 70v40" stroke="#14161F" stroke-width="1.5"/>
+                  <rect x="10" y="110" width="170" height="52" rx="5" fill="#FFFFFF" stroke="#14161F" stroke-width="1.5"/>
+                  <text x="24" y="132" class="svg-t b">SQS FIFO</text><text x="24" y="150" class="svg-t m">visibility 300s</text>
+                  <path d="M236 136h-56" stroke="#14161F" stroke-width="1.5"/>
+                  <rect x="10" y="212" width="170" height="52" rx="5" fill="#F7E0DC" stroke="#14161F" stroke-width="1.5"/>
+                  <text x="24" y="234" class="svg-t b">Dead letter queue</text><text x="24" y="252" class="svg-t m">kept 14 days</text>
+                  <path d="M95 162v50" stroke="#C74634" stroke-width="1.5" stroke-dasharray="4 3"/>
+                  <text x="102" y="192" class="svg-t" fill="#C74634" style="fill:#C74634">after 5 tries</text>
+                  <rect x="236" y="212" width="174" height="52" rx="5" fill="#FFFFFF" stroke="#14161F" stroke-width="1.5"/>
+                  <text x="252" y="234" class="svg-t b">S3 claim-check</text><text x="252" y="252" class="svg-t m">large payloads</text>
+                  <path d="M323 162v50" stroke="#14161F" stroke-width="1.5" stroke-dasharray="4 3"/>
+                </g>
+              </svg>
+            </div>
+            <span class="badge">IBM MQ retired</span>
+            <i class="h tl"></i><i class="h tr"></i><i class="h bl"></i><i class="h br"></i>
+          </div>
+        </div>
+      </article>
+
+      <!-- 03 -->
+      <article class="case" style="--i:2;--c:var(--blue);--tc:#fff">
+        <div class="case-tab">▮ Case 03<span class="t-long">&nbsp;· modernisation</span></div>
+        <div class="case-body">
+          <div class="case-info">
+            <div class="when">2024–2026 · Associate</div>
+            <h3>Breaking a legacy Oracle Forms platform into 14 Java services</h3>
+            <p>A case management platform rebuilt as 5 experience-layer and 9 domain-layer Spring Boot services, with its business rules rewritten as testable service code.</p>
+            <div class="metric"><strong>20–40%</strong><span>faster responses on frequently used APIs</span></div>
+            <details>
+              <summary>How it went</summary>
+              <dl>
+                <div><dt>Problem</dt><dd>Business rules lived inside Oracle Forms and PL/SQL, hard to test and harder to change.</dd></div>
+                <div><dt>What I did</dt><dd>Moved the rules into Spring Boot service layers, built the data access on Spring JDBC, and tuned the SQL with joins, pagination and indexed access paths.</dd></div>
+                <div><dt>Quality</dt><dd>Global exception handling with consistent HTTP mapping cut recurring QA defects by 20–30%. Coverage held above 80%.</dd></div>
+              </dl>
+            </details>
+            <div class="ftags"><span>Spring Boot</span><span>Spring JDBC</span><span>Oracle</span></div>
+          </div>
+          <div class="visual">
+            <div class="frame">
+              <svg viewBox="0 0 420 300" role="img" aria-label="Diagram: one Oracle Forms monolith split into 5 experience services and 9 domain services">
+                <rect x="14" y="80" width="112" height="140" rx="6" fill="#F7E0DC" stroke="#14161F" stroke-width="1.5"/>
+                <text x="28" y="140" class="svg-t b">Oracle</text><text x="28" y="158" class="svg-t b">Forms</text>
+                <text x="28" y="180" class="svg-t m">1 monolith</text>
+                <path d="M134 150h40" stroke="#14161F" stroke-width="1.5"/><path d="M168 144l8 6-8 6" fill="none" stroke="#14161F" stroke-width="1.5"/>
+                <text x="190" y="40" class="svg-t b">EXPERIENCE · 5</text>
+                <g fill="#DCE7FF" stroke="#14161F" stroke-width="1.5">
+                  <rect x="190" y="52" width="38" height="30" rx="4"/><rect x="234" y="52" width="38" height="30" rx="4"/><rect x="278" y="52" width="38" height="30" rx="4"/><rect x="322" y="52" width="38" height="30" rx="4"/><rect x="366" y="52" width="38" height="30" rx="4"/>
+                </g>
+                <text x="190" y="128" class="svg-t b">DOMAIN · 9</text>
+                <g fill="#FFFFFF" stroke="#14161F" stroke-width="1.5">
+                  <rect x="190" y="140" width="38" height="30" rx="4"/><rect x="234" y="140" width="38" height="30" rx="4"/><rect x="278" y="140" width="38" height="30" rx="4"/><rect x="322" y="140" width="38" height="30" rx="4"/><rect x="366" y="140" width="38" height="30" rx="4"/>
+                  <rect x="190" y="178" width="38" height="30" rx="4"/><rect x="234" y="178" width="38" height="30" rx="4"/><rect x="278" y="178" width="38" height="30" rx="4"/><rect x="322" y="178" width="38" height="30" rx="4"/>
+                </g>
+                <path d="M297 82v58" stroke="#14161F" stroke-width="1.2" stroke-dasharray="3 3"/>
+                <text x="190" y="246" class="svg-t m">Spring Boot · REST · Spring JDBC</text>
+              </svg>
+            </div>
+            <span class="badge">14 services</span>
+            <i class="h tl"></i><i class="h tr"></i><i class="h bl"></i><i class="h br"></i>
+          </div>
+        </div>
+      </article>
+
+      <!-- 04 -->
+      <article class="case" style="--i:3;--c:var(--oracle);--tc:#fff">
+        <div class="case-tab">▮ Case 04<span class="t-long">&nbsp;· performance</span></div>
+        <div class="case-body">
+          <div class="case-info">
+            <div class="when">2025 · Associate</div>
+            <h3>A business-critical flow timing out after 3 minutes</h3>
+            <p>A slow endpoint was tripping production gateway timeouts. I traced it through the UI, experience and domain layers down to the query.</p>
+            <div class="metric"><strong>70%</strong><span>faster, from 3+ minutes to under 60 seconds</span></div>
+            <details>
+              <summary>How it went</summary>
+              <dl>
+                <div><dt>Symptom</dt><dd>Gateway timeouts on one flow, reproducible with a specific filter. Result sets of 15k rows in test and 25k+ in pre-production.</dd></div>
+                <div><dt>Isolating it</dt><dd>HAR traces to find the slow call, then timing each hop to separate transport cost from database cost.</dd></div>
+                <div><dt>Fix</dt><dd>Paged data retrieval with indexed lookups, so the query returns a bounded page instead of the whole result set.</dd></div>
+              </dl>
+            </details>
+            <div class="ftags"><span>SQL</span><span>Oracle</span><span>Pagination</span></div>
+          </div>
+          <div class="visual">
+            <div class="frame">
+              <svg viewBox="0 0 420 300" role="img" aria-label="Bar chart: response time before 180 seconds, after under 60 seconds">
+                <text x="20" y="40" class="svg-t b">RESPONSE TIME (seconds)</text>
+                <g stroke="#E3E5EB" stroke-width="1">
+                  <path d="M92 60v170M178 60v170M264 60v170M350 60v170"/>
+                </g>
+                <text x="20" y="104" class="svg-t">Before</text>
+                <rect x="92" y="84" width="258" height="34" fill="#C74634" stroke="#14161F" stroke-width="1.5"/>
+                <text x="296" y="106" class="svg-t b" style="fill:#FFFFFF">180s</text>
+                <text x="20" y="178" class="svg-t">After</text>
+                <rect x="92" y="158" width="86" height="34" fill="#6DB33F" stroke="#14161F" stroke-width="1.5"/>
+                <text x="188" y="180" class="svg-t b">&lt; 60s</text>
+                <text x="88" y="252" class="svg-t m">0</text><text x="168" y="252" class="svg-t m">60</text>
+                <text x="252" y="252" class="svg-t m">120</text><text x="338" y="252" class="svg-t m">180</text>
+              </svg>
+            </div>
+            <span class="badge">70% faster</span>
+            <i class="h tl"></i><i class="h tr"></i><i class="h bl"></i><i class="h br"></i>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SIDE BUILDS -->
+  <section class="side wrap" id="side" data-sec="work">
+    <div class="sec-head">
+      <p class="hand">side builds</p>
+      <svg class="scribble" viewBox="0 0 64 10" aria-hidden="true"><path d="M2 4c10-3 20 3 30 0s20-3 30 0M6 8c10-2 18 2 26 0s18-2 26 0" fill="none" stroke="#14161F" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </div>
+    <div class="side-grid">
+      <div class="fcard">
+        <div class="ftab">GenAI · shipped</div>
+        <div class="inner">
+          <div class="shot">
+            <div class="log">
+              <div>&gt; triage DEF-2291</div>
+              <div>reading UI, API and PL/SQL paths…</div>
+              <div><span class="ok">match</span> 3 similar past defects</div>
+              <div><span class="hl">draft RCA ready</span> → <span class="warn">awaiting human review</span></div>
+            </div>
+          </div>
+          <h3>Defect-triage agent</h3>
+          <p>Drafts root-cause summaries from recurring defect patterns. Triage went from about a day to minutes across 25+ defects, and every draft goes through a human before anyone acts on it.</p>
+        </div>
+      </div>
+      <div class="fcard">
+        <div class="ftab">Java 21 · next build</div>
+        <div class="inner">
+          <div class="shot">
+            <div class="log">
+              <div>ServerSocket :8080</div>
+              <div>pool core=10 max=18 queue=200</div>
+              <div><span class="ok">200</span> GET / · virtual thread</div>
+              <div><span class="warn">rejected</span> task 219 · AbortPolicy</div>
+            </div>
+          </div>
+          <h3>A web server from raw sockets</h3>
+          <p>An HTTP server in plain Java 21, built to see exactly what Spring Boot and Tomcat do for me. Coming soon on GitHub.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section class="stack wrap" id="stack" data-sec="stack">
+    <div class="sec-head">
+      <p class="hand">what I work with</p>
+      <svg class="scribble" viewBox="0 0 64 10" aria-hidden="true"><path d="M2 4c10-3 20 3 30 0s20-3 30 0M6 8c10-2 18 2 26 0s18-2 26 0" fill="none" stroke="#14161F" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </div>
+    <div class="groups">
+      <div class="group" style="--c:var(--spring)"><h4><i></i>Backend</h4>
+        <ul><li>Java 21<small>daily</small></li><li>Spring Boot</li><li>Spring MVC</li><li>Spring Data JPA</li><li>Hibernate</li><li>REST · SOAP</li><li>Apache CXF</li></ul></div>
+      <div class="group" style="--c:var(--aws)"><h4><i></i>Cloud</h4>
+        <ul><li>AWS<small>certified</small></li><li>SQS FIFO · DLQ</li><li>ECS Fargate</li><li>S3</li><li>API Gateway</li><li>Terraform</li><li>Docker</li></ul></div>
+      <div class="group" style="--c:var(--oracle)"><h4><i></i>Data</h4>
+        <ul><li>Oracle</li><li>SQL tuning</li><li>Spring JDBC</li><li>Indexing</li><li>Pagination</li><li>UCP pooling</li></ul></div>
+      <div class="group" style="--c:var(--blue)"><h4><i></i>Delivery</h4>
+        <ul><li>JUnit 5 · Mockito</li><li>Maven</li><li>Jenkins · CI/CD</li><li>Git</li><li>SAFe Agile</li><li>Multithreading</li></ul></div>
+    </div>
+  </section>
+
+  <!-- OFF THE CLOCK -->
+  <section class="offclock wrap" data-sec="stack">
+    <div class="sec-head">
+      <p class="hand">off the clock</p>
+      <svg class="scribble" viewBox="0 0 64 10" aria-hidden="true"><path d="M2 4c10-3 20 3 30 0s20-3 30 0M6 8c10-2 18 2 26 0s18-2 26 0" fill="none" stroke="#14161F" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </div>
+    <div class="offclock-row">
+      <p>I'm usually the one behind the camera. Wildlife when I can get out of the city, friends when I can't, always with something loud playing.</p>
+      <div class="exif" aria-label="Favourite camera settings">
+        <span>f/2.8</span><span>1/1000s</span><span>ISO 200</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact wrap" id="contact" data-sec="contact">
+    <div class="contact-panel">
+      <div class="big-sticker"><i><span>»</span></i>LET'S TALK<i><span>»</span></i></div>
+      <p>Open to backend engineering roles at product companies and GCCs. Hyderabad, or remote.</p>
+      <div class="email-row">
+        <code id="email">pramodhkadam68@gmail.com</code>
+        <button class="copy" id="copy" type="button">Copy</button>
+      </div>
+    </div>
+    <div class="dock">
+      <a href="https://www.linkedin.com/in/kadam-pramodh-88975432a" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM2.5 8.5h3V21h-3zM9 8.5h2.9v1.7h.1c.4-.8 1.4-1.9 3.1-1.9 3.3 0 3.9 2.2 3.9 5V21h-3v-6.8c0-1.6 0-3.7-2.3-3.7s-2.6 1.8-2.6 3.6V21H9z"/></svg>LinkedIn</a>
+      <a href="https://github.com/pramodh-del" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5a10.5 10.5 0 0 0-3.3 20.5c.5.1.7-.2.7-.5v-1.8c-2.9.6-3.5-1.4-3.5-1.4-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1 .1 1.6 1.1 1.6 1.1.9 1.6 2.5 1.1 3.1.9.1-.7.4-1.1.7-1.4-2.3-.3-4.8-1.2-4.8-5.2 0-1.1.4-2.1 1.1-2.8-.1-.3-.5-1.3.1-2.8 0 0 .9-.3 2.9 1.1a10 10 0 0 1 5.3 0c2-1.4 2.9-1.1 2.9-1.1.6 1.5.2 2.5.1 2.8.7.7 1.1 1.7 1.1 2.8 0 4-2.5 4.9-4.8 5.2.4.3.7 1 .7 1.9v2.9c0 .3.2.6.7.5A10.5 10.5 0 0 0 12 1.5z"/></svg>GitHub</a>
+      <a href="#contact" id="dockEmail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Email</a>
+    </div>
+  </section>
+</main>
+
+<footer>Designed and built by Kadam Pramodh · Hyderabad · 2026<br>Stickers on this page are draggable.</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Live Hyderabad time */
+  const fmtFull = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+  const fmtShort = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false });
+  function tick() {
+    const now = new Date();
+    $('#livetime').textContent = 'Hyderabad, India · ' + fmtFull.format(now).toUpperCase();
+    $('#navclock').textContent = fmtShort.format(now);
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* Figma frame size on the name */
+  const frame = $('#nameFrame'), sizeTag = $('#nameSize');
+  new ResizeObserver(() => {
+    const r = frame.getBoundingClientRect();
+    sizeTag.textContent = `Frame · ${Math.round(r.width)} × ${Math.round(r.height)}`;
+  }).observe(frame);
+
+  /* Active nav item follows the section in view */
+  const links = $$('#navlinks a');
+  const setOn = key => links.forEach(a => a.classList.toggle('on', a.dataset.sec === key));
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) setOn(e.target.dataset.sec === 'contact' ? 'stack' : e.target.dataset.sec); });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  $$('section[data-sec]').forEach(s => io.observe(s));
+
+  /* Draggable stickers (desktop only, like moving layers on a canvas) */
+  const canDrag = () => matchMedia('(min-width: 761px) and (pointer: fine)').matches;
+  $$('.drag').forEach(el => {
+    const base = el.style.transform || '';
+    let sx = 0, sy = 0, dx = 0, dy = 0, ox = 0, oy = 0, on = false;
+    el.addEventListener('pointerdown', e => {
+      if (!canDrag()) return;
+      on = true; sx = e.clientX; sy = e.clientY; ox = dx; oy = dy;
+      el.setPointerCapture(e.pointerId); el.classList.add('dragging');
+    });
+    el.addEventListener('pointermove', e => {
+      if (!on) return;
+      dx = ox + e.clientX - sx; dy = oy + e.clientY - sy;
+      el.style.transform = `translate(${dx}px, ${dy}px) ${base}`;
+    });
+    const end = () => { on = false; el.classList.remove('dragging'); };
+    el.addEventListener('pointerup', end);
+    el.addEventListener('pointercancel', end);
+  });
+
+  /* Copy email */
+  const toast = $('#toast'); let t;
+  const say = msg => { toast.textContent = msg; toast.classList.add('on'); clearTimeout(t); t = setTimeout(() => toast.classList.remove('on'), 1800); };
+  const copyEmail = () => {
+    const text = $('#email').textContent;
+    const fallback = () => {
+      const r = document.createRange(); r.selectNodeContents($('#email'));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      say('Selected. Press Ctrl/Cmd + C to copy');
+    };
+    try { navigator.clipboard.writeText(text).then(() => say('Email copied'), fallback); } catch (e) { fallback(); }
+  };
+  $('#copy').addEventListener('click', copyEmail);
+  $('#dockEmail').addEventListener('click', () => setTimeout(copyEmail, reduce ? 0 : 450));
+})();
+</script>
+</body>
+</html>
